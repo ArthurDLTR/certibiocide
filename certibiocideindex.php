@@ -106,27 +106,27 @@ llxHeader("", $langs->trans("CertibiocideArea"), '', '', 0, 0, '', '', '', 'mod-
 
 print load_fiche_titre($langs->trans("CertibiocideArea"), '', 'certibiocide.png@certibiocide');
 
-print '<div class="fichecenter"><div class="fichethirdleft">';
+print '<div class="fichecenter">Test<div class="fichethirdleft">';
 
 
-/* BEGIN MODULEBUILDER DRAFT MYOBJECT
+// BEGIN MODULEBUILDER DRAFT MYOBJECT
 // Draft MyObject
-if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'read')) {
+if (isModEnabled('certibiocide')) {
 	$langs->load("orders");
 
-	$sql = "SELECT c.rowid, c.ref, c.ref_client, c.total_ht, c.tva as total_tva, c.total_ttc, s.rowid as socid, s.nom as name, s.client, s.canvas";
-	$sql.= ", s.code_client";
-	$sql.= " FROM ".MAIN_DB_PREFIX."commande as c";
-	$sql.= ", ".MAIN_DB_PREFIX."societe as s";
-	$sql.= " WHERE c.fk_soc = s.rowid";
-	$sql.= " AND c.fk_statut = 0";
-	$sql.= " AND c.entity IN (".getEntity('commande').")";
+	$sql = "SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) FROM dolibarr.llx_commande as c 
+JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
+JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
+JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
+JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc
+JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid
+WHERE p_f.certibiocide_attr_product like 'TP%' && EXTRACT(YEAR FROM c.date_commande) = (EXTRACT(YEAR FROM NOW()))
+GROUP BY p.rowid, s.rowid";
 	if ($socid)	$sql.= " AND c.fk_soc = ".((int) $socid);
 
 	$resql = $db->query($sql);
 	if ($resql)
 	{
-		$total = 0;
 		$num = $db->num_rows($resql);
 
 		print '<table class="noborder centpercent">';
@@ -141,27 +141,13 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'read')) {
 			{
 
 				$obj = $db->fetch_object($resql);
-				print '<tr class="oddeven"><td class="nowrap">';
+				print '<tr class="oddeven"><td class="nowrap">' . $obj->ref;
 
-				$myobjectstatic->id=$obj->rowid;
-				$myobjectstatic->ref=$obj->ref;
-				$myobjectstatic->ref_client=$obj->ref_client;
-				$myobjectstatic->total_ht = $obj->total_ht;
-				$myobjectstatic->total_tva = $obj->total_tva;
-				$myobjectstatic->total_ttc = $obj->total_ttc;
-
-				print $myobjectstatic->getNomUrl(1);
 				print '</td>';
 				print '<td class="nowrap">';
 				print '</td>';
-				print '<td class="right" class="nowrap">'.price($obj->total_ttc).'</td></tr>';
+				print '<td class="right" class="nowrap">'. $obj->certibiocide_attr_product .'</td></tr>';
 				$i++;
-				$total += $obj->total_ttc;
-			}
-			if ($total>0)
-			{
-
-				print '<tr class="liste_total"><td>'.$langs->trans("Total").'</td><td colspan="2" class="right">'.price($total)."</td></tr>";
 			}
 		}
 		else
@@ -178,7 +164,7 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'read')) {
 		dol_print_error($db);
 	}
 }
-END MODULEBUILDER DRAFT MYOBJECT */
+//END MODULEBUILDER DRAFT MYOBJECT
 
 
 print '</div><div class="fichetwothirdright">';
@@ -191,7 +177,8 @@ $max = getDolGlobalInt('MAIN_SIZE_SHORTLIST_LIMIT');
 // Last modified myobject
 if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'read')) {
 
-	$resql = $db->query("SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) FROM dolibarr.llx_commande as c JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid WHERE p_f.certibiocide_attr_product like 'TP%' && EXTRACT(YEAR FROM c.date_commande) = (EXTRACT(YEAR FROM NOW()) - 1) GROUP BY p.rowid, s.rowid");
+	$resql = $db->query("SELECT * FROM llx_product");
+	print $resql;
 	if ($resql)
 	{
 		$num = $db->num_rows($resql);

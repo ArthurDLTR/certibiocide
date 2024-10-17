@@ -35,6 +35,15 @@ CERTIBIOCIDE_MYPARAM1Tooltip = My param 1 tooltip
 CERTIBIOCIDE_MYPARAM2=My param 2
 CERTIBIOCIDE_MYPARAM2Tooltip=My param 2 tooltip
 
+#
+# Certibiocide page
+#
+THIRDPARTY_NAME = Company name
+CERTIBIOCIDE_CERTIFICATE = Company Certibiocide
+PRODUCT_REF = Ref
+PRODUCT_LABEL = Label
+CERTIBIOCIDE = Product certibiocide
+QTY = Quantity
 
 #
 # About page

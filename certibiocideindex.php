@@ -114,7 +114,7 @@ print '<div class="fichecenter">Test<div class="fichethirdleft">';
 if (isModEnabled('certibiocide')) {
 	$langs->load("orders");
 
-	$sql = "SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) FROM dolibarr.llx_commande as c 
+	$sql = "SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM dolibarr.llx_commande as c 
 JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
 JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
 JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
@@ -131,7 +131,14 @@ GROUP BY p.rowid, s.rowid";
 
 		print '<table class="noborder centpercent">';
 		print '<tr class="liste_titre">';
-		print '<th colspan="3">'.$langs->trans("DraftMyObjects").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th></tr>';
+		print '<th>'.$langs->trans("THIRDPARTY_NAME").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("CERTIBIOCIDE_CERTIFICATE").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("PRODUCT_REF").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("PRODUCT_LABEL").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("CERTIBIOCIDE").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("QTY").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
+
+		print '</tr>';
 
 		$var = true;
 		if ($num > 0)
@@ -141,12 +148,15 @@ GROUP BY p.rowid, s.rowid";
 			{
 
 				$obj = $db->fetch_object($resql);
-				print '<tr class="oddeven"><td class="nowrap">' . $obj->ref;
-
-				print '</td>';
-				print '<td class="nowrap">';
-				print '</td>';
-				print '<td class="right" class="nowrap">'. $obj->certibiocide_attr_product .'</td></tr>';
+				print '<tr class="oddeven">';
+				print '<td class="nowrap">' . $obj->nom . '</td>';
+				print '<td class="nowrap">' . $obj->certibiocide_attr_thirdparty . '</td>';
+				print '<td class="nowrap">' . $obj->ref . '</td>';
+				print '<td class="nowrap">' . $obj->label . '</>';
+				print '<td class="nowrap">'. $obj->certibiocide_attr_product .'</td>';
+				print '<td class="nowrap">' . $obj->qty . '</td>';
+				
+				print '</tr>';
 				$i++;
 			}
 		}

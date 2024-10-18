@@ -63,6 +63,9 @@ $langs->loadLangs(array("certibiocide@certibiocide"));
 
 $action = GETPOST('action', 'aZ09');
 
+$starting_date = "";
+$ending_date = "";
+
 $max = 5;
 $now = dol_now();
 
@@ -91,8 +94,13 @@ if (isset($user->socid) && $user->socid > 0) {
 /*
  * Actions
  */
+if(GETPOST('starting_date', 'alpha')){
+	$starting_date = GETPOST('starting_date', 'alpha');
+}
 
-// None
+if(GETPOST('ending_date', 'alpha')){
+	$ending_date = GETPOST('ending_date', 'alpha');
+}
 
 
 /*
@@ -106,22 +114,41 @@ llxHeader("", $langs->trans("CertibiocideArea"), '', '', 0, 0, '', '', '', 'mod-
 
 print load_fiche_titre($langs->trans("CertibiocideArea"), '', 'certibiocide.png@certibiocide');
 
-print '<div class="fichecenter">Test<div class="fichethirdleft">';
-
+print '<form method="POST" id="searchFormList" action="'. $_SERVER["PHP_SELF"] . ' ">';
+print '<input type="hidden" name="token" value="'.newToken().'">';
+print '<label for="starting_date">' . $langs->trans('START_DATE') . '</label>';
+print '<input type="date" id="starting_date" name="starting_date" value="' . $starting_date . '">';
+print '<br>';
+print '<label for="ending_date">' . $langs->trans('END_DATE') . '</label>';
+print '<input type="date" id="ending_date" name="ending_date" value="' . $ending_date . '">';
+print '<br >';
+print '<input type="submit" value="'.$langs->trans("REFRESH").'">';
+print '</form>';
 
 // BEGIN MODULEBUILDER DRAFT MYOBJECT
 // Draft MyObject
-if (isModEnabled('certibiocide')) {
+if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 'read')) {
 	$langs->load("orders");
 
+	// SQL Request with table joins and fields selection
 	$sql = "SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM dolibarr.llx_commande as c 
-JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
-JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
-JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
-JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc
-JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid
-WHERE p_f.certibiocide_attr_product like 'TP%' && EXTRACT(YEAR FROM c.date_commande) = (EXTRACT(YEAR FROM NOW()))
-GROUP BY p.rowid, s.rowid";
+		JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
+		JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
+		JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
+		JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc
+		JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid";
+	// Conditions to extract only the product concerned by Certibiode
+	$conditions = " WHERE p_f.certibiocide_attr_product like 'TP%'";
+	// Get the begin and the end of the period which the user want to see the sales of certibiocide products
+	if($starting_date){
+		$conditions.= " && c.date_commande >= '" . $starting_date . "'";
+	}
+	if ($ending_date){
+		$conditions.= " && c.date_commande <= '". $ending_date . "'";
+	}
+	$sql.= $conditions;
+	$sql.= " GROUP BY p.rowid, s.rowid";
+
 	if ($socid)	$sql.= " AND c.fk_soc = ".((int) $socid);
 
 	$resql = $db->query($sql);
@@ -185,6 +212,7 @@ $max = getDolGlobalInt('MAIN_SIZE_SHORTLIST_LIMIT');
 
 // BEGIN MODULEBUILDER LASTMODIFIED MYOBJECT
 // Last modified myobject
+/*
 if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'read')) {
 
 	$resql = $db->query("SELECT * FROM llx_product");
@@ -228,6 +256,7 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'read')) {
 		print "</table><br>";
 	}
 }
+*/
 
 
 print '</div></div>';

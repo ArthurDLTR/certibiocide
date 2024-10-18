@@ -275,7 +275,7 @@ class modCertibiocide extends DolibarrModules
 		$r = 0;
 		// Add here entries to declare new permissions
 		/* BEGIN MODULEBUILDER PERMISSIONS */
-		/*
+		
 		$o = 1;
 		$this->rights[$r][0] = $this->numero . sprintf("%02d", ($o * 10) + 1); // Permission id (must not be already used)
 		$this->rights[$r][1] = 'Read objects of Certibiocide'; // Permission label
@@ -292,7 +292,7 @@ class modCertibiocide extends DolibarrModules
 		$this->rights[$r][4] = 'myobject';
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->hasRight('certibiocide', 'myobject', 'delete'))
 		$r++;
-		*/
+		
 		/* END MODULEBUILDER PERMISSIONS */
 
 		// Main menu entries to add

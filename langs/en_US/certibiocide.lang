@@ -44,7 +44,9 @@ PRODUCT_REF = Ref
 PRODUCT_LABEL = Label
 CERTIBIOCIDE = Product certibiocide
 QTY = Quantity
-
+START_DATE = Starting date
+END_DATE = Ending date
+REFRESH = Refresh
 #
 # About page
 #

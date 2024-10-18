@@ -1,0 +1,67 @@
+# Copyright (C) 2024 SuperAdmin
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Generic
+#
+
+# Module label 'ModuleCertibiocideName'
+ModuleCertibiocideName = Certibiocide
+# Module description 'ModuleCertibiocideDesc'
+ModuleCertibiocideDesc = Description du Module Certibiocide
+certibiocide = certibiocide
+Certibiocide = Certibiocide
+
+#
+# Admin page
+#
+CertibiocideSetup = Installation de Certibiocide
+Settings = Paramètres
+CertibiocideSetupPage = Page d'installation de Certibiocide
+CERTIBIOCIDE_MYPARAM1 = Paramètre 1
+CERTIBIOCIDE_MYPARAM1Tooltip = Paramètre 1 Tooltip
+CERTIBIOCIDE_MYPARAM2= Paramètre 2
+CERTIBIOCIDE_MYPARAM2Tooltip=Paramètre 2 Tooltip
+
+#
+# Certibiocide page
+#
+THIRDPARTY_NAME = Nom du tiers
+CERTIBIOCIDE_CERTIFICATE = N° de certificat Certibiocide
+PRODUCT_REF = Référence
+PRODUCT_LABEL = Nom du produit
+CERTIBIOCIDE = Certibiocide produit
+QTY = Quantitée
+START_DATE = Date de début
+END_DATE = Date de fin
+REFRESH = Actualiser
+#
+# About page
+#
+About = A propos
+CertibiocideAbout = A propos de Certibiocide
+CertibiocideAboutPage = Page à propos Certibiocide
+
+#
+# Sample page
+#
+CertibiocideArea = Page pour le Certibiocide
+MyPageName = Mon nom de page
+
+#
+# Sample widget
+#
+MyWidget = Mon widget
+MyWidgetDescription = Description de mon widget

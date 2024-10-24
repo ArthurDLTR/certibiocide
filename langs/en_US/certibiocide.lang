@@ -47,6 +47,7 @@ QTY = Quantity
 START_DATE = Starting date
 END_DATE = Ending date
 REFRESH = Refresh
+CSV = CSV
 #
 # About page
 #

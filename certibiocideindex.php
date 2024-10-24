@@ -65,6 +65,7 @@ $action = GETPOST('action', 'aZ09');
 
 $starting_date = "";
 $ending_date = "";
+$valuesForCSV = array();
 
 $max = 5;
 $now = dol_now();
@@ -75,6 +76,8 @@ if (isset($user->socid) && $user->socid > 0) {
 	$action = '';
 	$socid = $user->socid;
 }
+
+
 
 // Security check (enable the most restrictive one)
 //if ($user->socid > 0) accessforbidden();
@@ -90,6 +93,25 @@ if (isset($user->socid) && $user->socid > 0) {
 //	accessforbidden('Must be admin');
 //}
 
+/*
+ * Functions
+ */
+function toCSV($array){
+	header("Content-Description: File Transfer");
+	header("Content-Type: text/csv; charset=utf-8");
+    header('Content-Disposition: attachment; filename="certi.csv";');
+	header("Pragma: no-cache");
+	header('Expires: 0');
+    // Function to translate an array into a .csv file
+    $file = fopen("php://output", "w");
+    foreach($array as $line){
+        $val = explode(",", $line);
+        fputcsv($file, $val);
+    }
+	readfile($file);
+    fclose($file);
+    exit;
+}
 
 /*
  * Actions
@@ -123,6 +145,7 @@ print '<label for="ending_date">' . $langs->trans('END_DATE') . '</label>';
 print '<input type="date" id="ending_date" name="ending_date" value="' . $ending_date . '">';
 print '<br >';
 print '<input type="submit" value="'.$langs->trans("REFRESH").'">';
+print '<input type="submit" value="'.$langs->trans("CSV").'" name="CSVButton">';
 print '</form>';
 
 // BEGIN MODULEBUILDER DRAFT MYOBJECT
@@ -175,6 +198,9 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 			{
 
 				$obj = $db->fetch_object($resql);
+
+				$valuesForCSV[$i] = $obj->nom . "," . $obj->certibiocide_attr_thirdparty . "," . $obj->ref . "," . $obj->label . "," . $obj->certibiocide_attr_product . "," . $obj->qty;
+				
 				print '<tr class="oddeven">';
 				print '<td class="nowrap">' . $obj->nom . '</td>';
 				print '<td class="nowrap">' . $obj->certibiocide_attr_thirdparty . '</td>';
@@ -201,6 +227,12 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 		dol_print_error($db);
 	}
 }
+
+// CSV button check to make the CSV file when the button is clicked
+if (GETPOSTISSET('CSVButton', 'bool')){
+	toCSV($valuesForCSV);
+}
+
 //END MODULEBUILDER DRAFT MYOBJECT
 
 
@@ -260,6 +292,9 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'read')) {
 
 
 print '</div></div>';
+
+
+
 
 // End of page
 llxFooter();

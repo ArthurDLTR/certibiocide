@@ -57,6 +57,7 @@ if (!$res) {
 }
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
+require_once DOL_DOCUMENT_ROOT.'/exports/class/export.class.php';
 
 // Load translation files required by the page
 $langs->loadLangs(array("certibiocide@certibiocide"));
@@ -66,6 +67,10 @@ $action = GETPOST('action', 'aZ09');
 $starting_date = "";
 $ending_date = "";
 $valuesForCSV = array();
+$datatoexport = "s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty)";
+// Creation of an export 
+$export = new Export($db);
+
 
 $max = 5;
 $now = dol_now();
@@ -93,25 +98,6 @@ if (isset($user->socid) && $user->socid > 0) {
 //	accessforbidden('Must be admin');
 //}
 
-/*
- * Functions
- */
-function toCSV($array){
-	header("Content-Description: File Transfer");
-	header("Content-Type: text/csv; charset=utf-8");
-    header('Content-Disposition: attachment; filename="certi.csv";');
-	header("Pragma: no-cache");
-	header('Expires: 0');
-    // Function to translate an array into a .csv file
-    $file = fopen("php://output", "w");
-    foreach($array as $line){
-        $val = explode(",", $line);
-        fputcsv($file, $val);
-    }
-	readfile($file);
-    fclose($file);
-    exit;
-}
 
 /*
  * Actions
@@ -124,6 +110,44 @@ if(GETPOST('ending_date', 'alpha')){
 	$ending_date = GETPOST('ending_date', 'alpha');
 }
 
+// CSV button check to make the CSV file when the button is clicked
+if (GETPOSTISSET('CSVButton', 'bool')){
+	// SQL Request for the function call
+	$sql = "SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM dolibarr.llx_commande as c 
+		JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
+		JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
+		JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
+		JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc
+		JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid";
+	// Conditions to extract only the product concerned by Certibiode
+	$conditions = " WHERE p_f.certibiocide_attr_product like 'TP%'";
+	// Get the begin and the end of the period which the user want to see the sales of certibiocide products
+	if($starting_date){
+		$conditions.= " && c.date_commande >= '" . $starting_date . "'";
+	}
+	if ($ending_date){
+		$conditions.= " && c.date_commande <= '". $ending_date . "'";
+	}
+	$sql.= $conditions;
+	$sql.= " GROUP BY p.rowid, s.rowid";
+
+	$resql = $db->query($sql);
+	if ($resql){
+		$num = $db->num_rows($resql);
+		if($num>0){
+			$i = 0;
+			while ($i < $num){
+				$obj = $db->fetch_object($resql);
+				$valuesForCSV[$i] = $obj->nom . "," . $obj->certibiocide_attr_thirdparty . "," . $obj->ref . "," . $obj->label . "," . $obj->certibiocide_attr_product . "," . $obj->qty;
+				$i++;
+			}
+		} else {
+			print '<tr class="oddeven"><td colspan="3" class="opacitymedium">'.$langs->trans("NoOrder").'</td></tr>';
+		}
+	}
+
+	toCSV($valuesForCSV);
+}
 
 /*
  * View
@@ -199,8 +223,6 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 
 				$obj = $db->fetch_object($resql);
 
-				$valuesForCSV[$i] = $obj->nom . "," . $obj->certibiocide_attr_thirdparty . "," . $obj->ref . "," . $obj->label . "," . $obj->certibiocide_attr_product . "," . $obj->qty;
-				
 				print '<tr class="oddeven">';
 				print '<td class="nowrap">' . $obj->nom . '</td>';
 				print '<td class="nowrap">' . $obj->certibiocide_attr_thirdparty . '</td>';
@@ -219,7 +241,6 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 			print '<tr class="oddeven"><td colspan="3" class="opacitymedium">'.$langs->trans("NoOrder").'</td></tr>';
 		}
 		print "</table><br>";
-
 		$db->free($resql);
 	}
 	else
@@ -228,10 +249,6 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 	}
 }
 
-// CSV button check to make the CSV file when the button is clicked
-if (GETPOSTISSET('CSVButton', 'bool')){
-	toCSV($valuesForCSV);
-}
 
 //END MODULEBUILDER DRAFT MYOBJECT
 
@@ -294,7 +311,27 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'read')) {
 print '</div></div>';
 
 
+/*
+ * Functions
+ */
+function toCSV($array){
+	header("Content-Description: File Transfer");
+	header("Content-Type: text/csv; charset=utf-8");
+    header('Content-Disposition: attachment; filename="certi.csv";');
+	header("Pragma: no-cache");
+	header('Expires: 0');
+    // Function to translate an array into a .csv file
+    $file = fopen("php://output", "w");
+    foreach($array as $line){
+        $val = explode(",", $line);
+        fputcsv($file, $val);
+    }
+    fclose($file);
+	
+    exit;
+	
 
+}
 
 // End of page
 llxFooter();

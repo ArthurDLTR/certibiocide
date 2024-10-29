@@ -2,7 +2,8 @@
 
 ## Features
 
-Description of the module...
+Module for the export of Certibiocide related products.
+Allows to see the products sold to any thirdparty and the Certibiocide's certificate number of this thirdparty to be in legal compliance with the French law related to this type of product.
 
 <!--
 ![Screenshot certibiocide](img/screenshot_certibiocide.png?raw=true "Certibiocide"){imgmd}
@@ -12,7 +13,9 @@ Other external modules are available on [Dolistore.com](https://www.dolistore.co
 
 ## Translations
 
-Translations can be completed manually by editing files into directories *langs*.
+This module is translated in French and English for the moment.
+
+Other translations can be completed manually by editing files into directories *langs*.
 
 <!--
 This module contains also a sample configuration for Transifex, under the hidden directory [.tx](.tx), so it is possible to manage translation using this service.
@@ -89,7 +92,7 @@ From your browser:
 
 ### Main code
 
-GPLv3 or (at your option) any later version. See file COPYING for more information.
+GPLv3 or any later version. See file COPYING for more information.
 
 ### Documentation
 

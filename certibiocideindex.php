@@ -111,11 +111,11 @@ if(GETPOST('ending_date', 'alpha')){
 if (GETPOSTISSET('CSVButton', 'bool')){
 	// SQL Request for the function call
 	$sql = "SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM dolibarr.llx_commande as c 
-		JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
-		JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
-		JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
-		JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc
-		JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid";
+		LEFT JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
+		LEFT JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
+		LEFT JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
+		LEFT JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc
+		LEFT JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid";
 	// Conditions to extract only the product concerned by Certibiode
 	$conditions = " WHERE p_f.certibiocide_attr_product like 'TP%'";
 	// Get the begin and the end of the period which the user want to see the sales of certibiocide products

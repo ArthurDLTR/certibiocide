@@ -54,6 +54,7 @@ if (!$res) {
 }
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
+require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/exports/class/export.class.php';
 
 // Load translation files required by the page
@@ -152,6 +153,8 @@ if (GETPOSTISSET('CSVButton', 'bool')){
 
 $form = new Form($db);
 $formfile = new FormFile($db);
+$soc = new Societe($db);
+$prod = new Product($db);
 
 llxHeader("", $langs->trans("CertibiocideArea"), '', '', 0, 0, '', '', '', 'mod-certibiocide page-index');
 
@@ -175,7 +178,7 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 	$langs->load("orders");
 
 	// SQL Request with table joins and fields selection
-	$sql = "SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM dolibarr.llx_commande as c 
+	$sql = "SELECT s.rowid as soc_id, s.nom, s_f.certibiocide_attr_thirdparty, p.rowid as prod_id, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM dolibarr.llx_commande as c 
 		LEFT JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
 		LEFT JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
 		LEFT JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
@@ -219,12 +222,18 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 			{
 
 				$obj = $db->fetch_object($resql);
+				
+				$soc->id = $obj->soc_id;
+				$soc->name = $obj->nom;
+
+				$prod->id = $obj->prod_id;
+				$prod->ref = $obj->ref;
 
 				print '<tr class="oddeven">';
-				print '<td class="nowrap">' . $obj->nom . '</td>';
+				print '<td class="tdoverflowmax200" data-ker="ref">' . $soc->getNomUrl(1, '', 100, 0, 1, 1) . '</td>';
 				print '<td class="nowrap">' . $obj->certibiocide_attr_thirdparty . '</td>';
-				print '<td class="nowrap">' . $obj->ref . '</td>';
-				print '<td class="nowrap">' . $obj->label . '</>';
+				print '<td class="nowrap">' . $prod->getNomUrl(1) . '</td>';
+				print '<td class="tdoverflowmax200">' . $obj->label . '</>';
 				print '<td class="nowrap">'. $obj->certibiocide_attr_product .'</td>';
 				print '<td class="nowrap">' . $obj->qty . '</td>';
 				

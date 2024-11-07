@@ -1,8 +1,5 @@
 <?php
-/* Copyright (C) 2001-2005 Rodolphe Quiedeville <rodolphe@quiedeville.org>
- * Copyright (C) 2004-2015 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2005-2012 Regis Houssin        <regis.houssin@inodbox.com>
- * Copyright (C) 2015      Jean-François Ferry	<jfefe@aternatik.fr>
+/* Copyright (C) 2024 Lenoble Arthur <arthurl52100@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -179,11 +176,11 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 
 	// SQL Request with table joins and fields selection
 	$sql = "SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM dolibarr.llx_commande as c 
-		JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
-		JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
-		JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
-		JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc
-		JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid";
+		LEFT JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
+		LEFT JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
+		LEFT JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
+		LEFT JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc
+		LEFT JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid";
 	// Conditions to extract only the product concerned by Certibiode
 	$conditions = " WHERE p_f.certibiocide_attr_product like 'TP%'";
 	// Get the begin and the end of the period which the user want to see the sales of certibiocide products

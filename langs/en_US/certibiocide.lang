@@ -40,8 +40,8 @@ CERTIBIOCIDE_MYPARAM2Tooltip=My param 2 tooltip
 #
 THIRDPARTY_NAME = Company name
 CERTIBIOCIDE_CERTIFICATE = Company Certibiocide
-PRODUCT_REF = Ref
-PRODUCT_LABEL = Label
+PRODUCT_REF = Product Reference
+PRODUCT_LABEL = Product Label
 CERTIBIOCIDE = Product certibiocide
 QTY = Quantity
 START_DATE = Starting date

@@ -40,7 +40,7 @@ CERTIBIOCIDE_MYPARAM2Tooltip=Paramètre 2 Tooltip
 #
 THIRDPARTY_NAME = Nom du tiers
 CERTIBIOCIDE_CERTIFICATE = N° de certificat Certibiocide
-PRODUCT_REF = Référence
+PRODUCT_REF = Référence du produit
 PRODUCT_LABEL = Nom du produit
 CERTIBIOCIDE = Certibiocide produit
 QTY = Quantitée

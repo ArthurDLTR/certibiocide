@@ -47,6 +47,7 @@ QTY = Quantitée
 START_DATE = Date de début
 END_DATE = Date de fin
 REFRESH = Actualiser
+BIOCIDE_PRODUCTS = Produits Biocide
 #
 # About page
 #

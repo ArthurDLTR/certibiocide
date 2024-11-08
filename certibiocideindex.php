@@ -80,7 +80,48 @@ if (isset($user->socid) && $user->socid > 0) {
 	$socid = $user->socid;
 }
 
+// SQL Request with table joins and fields selection
+$sql = "SELECT s.rowid as soc_id, s.nom as soc_nom, s.logo as soc_logo, s.status as soc_status, s_f.certibiocide_attr_thirdparty, p.rowid as prod_id, p.label as prod_label, p.ref as prod_ref, p.description as prod_descr, p.label as prod_label, p.tobuy as prod_tobuy, p.tosell as prod_tosell, p.entity as prod_entity, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM ".MAIN_DB_PREFIX."commande as c 
+LEFT JOIN ".MAIN_DB_PREFIX."commandedet c_d ON c.rowid = c_d.fk_commande
+LEFT JOIN ".MAIN_DB_PREFIX."product AS p on p.rowid = c_d.fk_product
+LEFT JOIN ".MAIN_DB_PREFIX."product_extrafields AS p_f on p_f.fk_object = p.rowid
+LEFT JOIN ".MAIN_DB_PREFIX."societe AS s on s.rowid = c.fk_soc
+LEFT JOIN ".MAIN_DB_PREFIX."societe_extrafields AS s_f on s_f.fk_object = s.rowid";
+// Conditions to extract only the product concerned by Certibiode
+$conditions = " WHERE p_f.certibiocide_attr_product like 'TP%'";
+// Get the begin and the end of the period which the user want to see the sales of certibiocide products
+if($starting_date){
+$conditions.= " && c.date_commande >= '" . $starting_date . "'";
+}
+if ($ending_date){
+$conditions.= " && c.date_commande <= '". $ending_date . "'";
+}
+$sql.= $conditions;
+$sql.= " GROUP BY p.rowid, s.rowid";
 
+if ($socid)	$sql.= " AND c.fk_soc = ".((int) $socid);
+
+
+// Getting the total number of rows in the request
+$resql = $db->query($sql);
+$totalnumofrows = $db->num_rows($resql);
+$db->free($resql);
+
+// Variables to define the limits of the request and the number of rows printed
+$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$page = GETPOSTINT('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+if(empty($page) || $page < 0){
+	// If $page is not defined, or '' or -1 or if we click on clear filters
+	$page = 0;
+}
+$offset = $limit * $page;
+$pageprev = $page - 1;
+$pagenext = $page + 1;
+	
+if ($offset > $totalnumofrows) {	// if total resultset is smaller than the paging size (filtering), goto and load page 0
+	$page = 0;
+	$offset = 0;
+}
 
 // Security check (enable the most restrictive one)
 //if ($user->socid > 0) accessforbidden();
@@ -111,12 +152,12 @@ if(GETPOST('ending_date', 'alpha')){
 // CSV button check to make the CSV file when the button is clicked
 if (GETPOSTISSET('CSVButton', 'bool')){
 	// SQL Request for the function call
-	$sql = "SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM dolibarr.llx_commande as c 
-		LEFT JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
-		LEFT JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
-		LEFT JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
-		LEFT JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc
-		LEFT JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid";
+	$sql = "SELECT s.nom, s_f.certibiocide_attr_thirdparty, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM ".MAIN_DB_PREFIX."commande as c 
+		LEFT JOIN ".MAIN_DB_PREFIX."commandedet c_d ON c.rowid = c_d.fk_commande
+		LEFT JOIN ".MAIN_DB_PREFIX."product AS p on p.rowid = c_d.fk_product
+		LEFT JOIN ".MAIN_DB_PREFIX."product_extrafields AS p_f on p_f.fk_object = p.rowid
+		LEFT JOIN ".MAIN_DB_PREFIX."societe AS s on s.rowid = c.fk_soc
+		LEFT JOIN ".MAIN_DB_PREFIX."societe_extrafields AS s_f on s_f.fk_object = s.rowid";
 	// Conditions to extract only the product concerned by Certibiode
 	$conditions = " WHERE p_f.certibiocide_attr_product like 'TP%'";
 	// Get the begin and the end of the period which the user want to see the sales of certibiocide products
@@ -156,61 +197,54 @@ $formfile = new FormFile($db);
 $soc = new Societe($db);
 $prod = new Product($db);
 
-llxHeader("", $langs->trans("CertibiocideArea"), '', '', 0, 0, '', '', '', 'mod-certibiocide page-index');
 
-print load_fiche_titre($langs->trans("CertibiocideArea"), '', 'certibiocide.png@certibiocide');
-
-print '<form method="POST" id="searchFormList" action="'. $_SERVER["PHP_SELF"] . ' ">';
-print '<input type="hidden" name="token" value="'.newToken().'">';
-print '<label for="starting_date">' . $langs->trans('START_DATE') . '</label>';
-print '<input type="date" id="starting_date" name="starting_date" value="' . $starting_date . '">';
-print '<br>';
-print '<label for="ending_date">' . $langs->trans('END_DATE') . '</label>';
-print '<input type="date" id="ending_date" name="ending_date" value="' . $ending_date . '">';
-print '<br >';
-print '<input type="submit" value="'.$langs->trans("REFRESH").'">';
-print '<input type="submit" value="'.$langs->trans("CSV").'" name="CSVButton">';
-print '</form>';
 
 // BEGIN MODULEBUILDER DRAFT MYOBJECT
 // Draft MyObject
 if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 'read')) {
 	$langs->load("orders");
 
-	// SQL Request with table joins and fields selection
-	$sql = "SELECT s.rowid as soc_id, s.nom, s_f.certibiocide_attr_thirdparty, p.rowid as prod_id, p.label, p.ref, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM dolibarr.llx_commande as c 
-		LEFT JOIN dolibarr.llx_commandedet c_d ON c.rowid = c_d.fk_commande
-		LEFT JOIN dolibarr.llx_product AS p on p.rowid = c_d.fk_product
-		LEFT JOIN dolibarr.llx_product_extrafields AS p_f on p_f.fk_object = p.rowid
-		LEFT JOIN dolibarr.llx_societe AS s on s.rowid = c.fk_soc
-		LEFT JOIN dolibarr.llx_societe_extrafields AS s_f on s_f.fk_object = s.rowid";
-	// Conditions to extract only the product concerned by Certibiode
-	$conditions = " WHERE p_f.certibiocide_attr_product like 'TP%'";
-	// Get the begin and the end of the period which the user want to see the sales of certibiocide products
-	if($starting_date){
-		$conditions.= " && c.date_commande >= '" . $starting_date . "'";
+	// Execute request with limits
+	if($limit){
+		$sql.=$db->plimit($limit+1, $offset);
 	}
-	if ($ending_date){
-		$conditions.= " && c.date_commande <= '". $ending_date . "'";
-	}
-	$sql.= $conditions;
-	$sql.= " GROUP BY p.rowid, s.rowid";
-
-	if ($socid)	$sql.= " AND c.fk_soc = ".((int) $socid);
 
 	$resql = $db->query($sql);
 	if ($resql)
 	{
 		$num = $db->num_rows($resql);
 
+		
+
+		//Printing the content of the table if resql worked
+		llxHeader("", $langs->trans("CertibiocideArea"), '', '', 0, 0, '', '', '', 'mod-certibiocide page-index');
+
+		print load_fiche_titre($langs->trans("CertibiocideArea"), '', 'certibiocide.png@certibiocide');
+		//print '<p> Num, limit, offset, totalnbrows, page:'.$num.','.$limit.','.$offset.','.$totalnumofrows.','.$page.'</p>';
+		print '<form method="POST" id="searchFormList" action="'. $_SERVER["PHP_SELF"] . ' ">';
+		print '<input type="hidden" name="token" value="'.newToken().'">';
+		print '<label for="starting_date">' . $langs->trans('START_DATE') . '</label>';
+		print '<input type="date" id="starting_date" name="starting_date" value="' . $starting_date . '">';
+		print '<br>';
+		print '<label for="ending_date">' . $langs->trans('END_DATE') . '</label>';
+		print '<input type="date" id="ending_date" name="ending_date" value="' . $ending_date . '">';
+		print '<br >';
+		print '<input type="submit" value="'.$langs->trans("REFRESH").'">';
+		print '<input type="submit" value="'.$langs->trans("CSV").'" name="CSVButton">';
+		// Affichage de la barre pour sélectionner la page à afficher
+		print_barre_liste($langs->trans("BIOCIDE_PRODUCTS"), $page, $_SERVER["PHP_SELF"], '', '', '', '', $num, $totalnumofrows, 'product', 0, '', '', $limit, 0, 0, 1);
+		
+		print '</form>';
+
+
 		print '<table class="noborder centpercent">';
 		print '<tr class="liste_titre">';
-		print '<th>'.$langs->trans("THIRDPARTY_NAME").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
-		print '<th>'.$langs->trans("CERTIBIOCIDE_CERTIFICATE").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
-		print '<th>'.$langs->trans("PRODUCT_REF").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
-		print '<th>'.$langs->trans("PRODUCT_LABEL").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
-		print '<th>'.$langs->trans("CERTIBIOCIDE").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
-		print '<th>'.$langs->trans("QTY").($num?'<span class="badge marginleftonlyshort">'.$num.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("THIRDPARTY_NAME").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("CERTIBIOCIDE_CERTIFICATE").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("PRODUCT_REF").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("PRODUCT_LABEL").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("CERTIBIOCIDE").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("QTY").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
 
 		print '</tr>';
 
@@ -218,22 +252,29 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 		if ($num > 0)
 		{
 			$i = 0;
-			while ($i < $num)
+			while ($i < $limit)
 			{
 
 				$obj = $db->fetch_object($resql);
 				
 				$soc->id = $obj->soc_id;
-				$soc->name = $obj->nom;
+				$soc->name = $obj->soc_nom;
+				$soc->logo = $obj->soc_logo;
+				$soc->status = $obj->soc_status;
 
 				$prod->id = $obj->prod_id;
-				$prod->ref = $obj->ref;
+				$prod->ref = $obj->prod_ref;
+				$prod->description = $obj->prod_descr;
+				$prod->label = $obj->prod_label;
+				$prod->status_buy = $obj->prod_tobuy;
+				$prod->status = $obj->prod_tosell;
+				$prod->entity = $obj->prod_entity;
 
 				print '<tr class="oddeven">';
 				print '<td class="tdoverflowmax200" data-ker="ref">' . $soc->getNomUrl(1, '', 100, 0, 1, 1) . '</td>';
 				print '<td class="nowrap">' . $obj->certibiocide_attr_thirdparty . '</td>';
 				print '<td class="nowrap">' . $prod->getNomUrl(1) . '</td>';
-				print '<td class="tdoverflowmax200">' . $obj->label . '</>';
+				print '<td class="tdoverflowmax200">' . $obj->prod_label . '</>';
 				print '<td class="nowrap">'. $obj->certibiocide_attr_product .'</td>';
 				print '<td class="nowrap">' . $obj->qty . '</td>';
 				
@@ -264,54 +305,6 @@ print '</div><div class="fichetwothirdright">';
 
 $NBMAX = getDolGlobalInt('MAIN_SIZE_SHORTLIST_LIMIT');
 $max = getDolGlobalInt('MAIN_SIZE_SHORTLIST_LIMIT');
-
-// BEGIN MODULEBUILDER LASTMODIFIED MYOBJECT
-// Last modified myobject
-/*
-if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'read')) {
-
-	$resql = $db->query("SELECT * FROM llx_product");
-	print $resql;
-	if ($resql)
-	{
-		$num = $db->num_rows($resql);
-		$i = 0;
-
-		print '<table class="noborder centpercent">';
-		print '<tr class="liste_titre">';
-		print '<th colspan="2">';
-		print $langs->trans("BoxTitleLatestModifiedMyObjects", $max);
-		print '</th>';
-		print '<th class="right">'.$langs->trans("DateModificationShort").'</th>';
-		print '</tr>';
-		if ($num)
-		{
-			while ($i < $num)
-			{
-				$objp = $db->fetch_object($resql);
-
-				$myobjectstatic->id=$objp->rowid;
-				$myobjectstatic->ref=$objp->ref;
-				$myobjectstatic->label=$objp->label;
-				$myobjectstatic->status = $objp->status;
-
-				print '<tr class="oddeven">';
-				print '<td class="nowrap">'.$myobjectstatic->getNomUrl(1).'</td>';
-				print '<td class="right nowrap">';
-				print "</td>";
-				print '<td class="right nowrap">'.dol_print_date($db->jdate($objp->tms), 'day')."</td>";
-				print '</tr>';
-				$i++;
-			}
-
-			$db->free($resql);
-		} else {
-			print '<tr class="oddeven"><td colspan="3" class="opacitymedium">'.$langs->trans("None").'</td></tr>';
-		}
-		print "</table><br>";
-	}
-}
-*/
 
 
 print '</div></div>';

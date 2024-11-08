@@ -215,6 +215,7 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 		$num = $db->num_rows($resql);
 
 		
+		$imax = ($limit ? min($num, $limit) : $num);
 
 		//Printing the content of the table if resql worked
 		llxHeader("", $langs->trans("CertibiocideArea"), '', '', 0, 0, '', '', '', 'mod-certibiocide page-index');
@@ -239,12 +240,12 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 
 		print '<table class="noborder centpercent">';
 		print '<tr class="liste_titre">';
-		print '<th>'.$langs->trans("THIRDPARTY_NAME").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
-		print '<th>'.$langs->trans("CERTIBIOCIDE_CERTIFICATE").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
-		print '<th>'.$langs->trans("PRODUCT_REF").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
-		print '<th>'.$langs->trans("PRODUCT_LABEL").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
-		print '<th>'.$langs->trans("CERTIBIOCIDE").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
-		print '<th>'.$langs->trans("QTY").($limit?'<span class="badge marginleftonlyshort">'.$limit.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("THIRDPARTY_NAME").($imax?'<span class="badge marginleftonlyshort">'.$imax.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("CERTIBIOCIDE_CERTIFICATE").($imax?'<span class="badge marginleftonlyshort">'.$imax.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("PRODUCT_REF").($imax?'<span class="badge marginleftonlyshort">'.$imax.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("PRODUCT_LABEL").($imax?'<span class="badge marginleftonlyshort">'.$imax.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("CERTIBIOCIDE").($imax?'<span class="badge marginleftonlyshort">'.$imax.'</span>':'').'</th>';
+		print '<th>'.$langs->trans("QTY").($imax?'<span class="badge marginleftonlyshort">'.$imax.'</span>':'').'</th>';
 
 		print '</tr>';
 
@@ -252,7 +253,7 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 		if ($num > 0)
 		{
 			$i = 0;
-			while ($i < $limit)
+			while ($i < $imax)
 			{
 
 				$obj = $db->fetch_object($resql);

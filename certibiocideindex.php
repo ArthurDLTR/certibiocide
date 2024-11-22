@@ -204,10 +204,34 @@ $prod = new Product($db);
 if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 'read')) {
 	$langs->load("orders");
 
+	// SQL Request with table joins and fields selection
+	$sql = "SELECT s.rowid as soc_id, s.nom as soc_nom, s.logo as soc_logo, s.status as soc_status, s_f.certibiocide_attr_thirdparty, p.rowid as prod_id, p.label as prod_label, p.ref as prod_ref, p.description as prod_descr, p.label as prod_label, p.tobuy as prod_tobuy, p.tosell as prod_tosell, p.entity as prod_entity, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM ".MAIN_DB_PREFIX."commande as c 
+		LEFT JOIN ".MAIN_DB_PREFIX."commandedet c_d ON c.rowid = c_d.fk_commande
+		LEFT JOIN ".MAIN_DB_PREFIX."product AS p on p.rowid = c_d.fk_product
+		LEFT JOIN ".MAIN_DB_PREFIX."product_extrafields AS p_f on p_f.fk_object = p.rowid
+		LEFT JOIN ".MAIN_DB_PREFIX."societe AS s on s.rowid = c.fk_soc
+		LEFT JOIN ".MAIN_DB_PREFIX."societe_extrafields AS s_f on s_f.fk_object = s.rowid";
+
+	// Conditions to extract only the product concerned by Certibiode
+	$conditions = " WHERE p_f.certibiocide_attr_product LIKE 'TP%'";
+	// Get the begin and the end of the period which the user want to see the sales of certibiocide products
+	if($starting_date){
+		$conditions.= " && c.date_commande >= '" . $starting_date . "'";
+	}
+	if ($ending_date){
+		$conditions.= " && c.date_commande <= '". $ending_date . "'";
+	}
+	
+	$sql.= $conditions;
+	$sql.= " GROUP BY p.rowid, s.rowid";
+	
 	// Execute request with limits
 	if($limit){
 		$sql.=$db->plimit($limit+1, $offset);
 	}
+	
+	if ($socid)	$sql.= " AND c.fk_soc = ".((int) $socid);
+
 
 	$resql = $db->query($sql);
 	if ($resql)

@@ -172,7 +172,7 @@ class modCertibiocide extends DolibarrModules
 		}
 
 		// Array to add new pages in new tabs
-		$this->tabs = array();
+		$this->tabs[] = array('product:+certibiocide:Certibiocide:certibiocide@certibiocide:/certibiocide/certibiocideindex.php?id=__ID__');
 		// Example:
 		// $this->tabs[] = array('data'=>'objecttype:+tabname1:Title1:mylangfile@certibiocide:$user->hasRight('certibiocide', 'read'):/certibiocide/mynewtab1.php?id=__ID__');  					// To add a new tab identified by code tabname1
 		// $this->tabs[] = array('data'=>'objecttype:+tabname2:SUBSTITUTION_Title2:mylangfile@certibiocide:$user->hasRight('othermodule', 'read'):/certibiocide/mynewtab2.php?id=__ID__',  	// To add another new tab identified by code tabname2. Label will be result of calling all substitution functions on 'Title2' key.
@@ -298,15 +298,13 @@ class modCertibiocide extends DolibarrModules
 		// Add here entries to declare new menus
 		/* BEGIN MODULEBUILDER TOPMENU */
 		$this->menu[$r++] = array(
-			'fk_menu'=>'', // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'top', // This is a Top menu entry
+			'fk_menu'=>'fk_mainmenu=products', // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left', // This is a Top menu entry
 			'titre'=>'ModuleCertibiocideName',
-			'prefix' => img_picto('', $this->picto, 'class="pictofixedwidth valignmiddle"'),
-			'mainmenu'=>'certibiocide',
-			'leftmenu'=>'',
+			'leftmenu'=>'certibiocide',
 			'url'=>'/certibiocide/certibiocideindex.php',
 			'langs'=>'certibiocide@certibiocide', // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>1000 + $r,
+			'position'=>100,
 			'enabled'=>'isModEnabled("certibiocide")', // Define condition to show or hide menu entry. Use 'isModEnabled("certibiocide")' if entry must be visible if module is enabled.
 			'perms'=>'1', // Use 'perms'=>'$user->hasRight("certibiocide", "myobject", "read")' if you want your menu with a permission rules
 			'target'=>'',

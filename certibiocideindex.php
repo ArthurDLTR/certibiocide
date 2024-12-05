@@ -299,7 +299,7 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 				print '<td class="tdoverflowmax200" data-ker="ref">' . $soc->getNomUrl(1, '', 100, 0, 1, 1) . '</td>';
 				print '<td class="nowrap">' . $obj->certibiocide_attr_thirdparty . '</td>';
 				print '<td class="nowrap">' . $prod->getNomUrl(1) . '</td>';
-				print '<td class="tdoverflowmax200">' . $obj->prod_label . '</>';
+				print '<td class="tdoverflowmax200">' . $obj->prod_label . '</td>';
 				print '<td class="nowrap">'. $obj->certibiocide_attr_product .'</td>';
 				print '<td class="nowrap">' . $obj->qty . '</td>';
 				

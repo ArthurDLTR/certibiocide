@@ -253,9 +253,9 @@ if (isModEnabled('certibiocide') && $user->hasRight('certibiocide', 'myobject', 
 		print '<br>';
 		print '<label for="ending_date">' . $langs->trans('END_DATE') . '</label>';
 		print '<input type="date" id="ending_date" name="ending_date" value="' . $ending_date . '">';
-		print '<br >';
-		print '<input type="submit" value="'.$langs->trans("REFRESH").'">';
-		print '<input type="submit" value="'.$langs->trans("CSV").'" name="CSVButton">';
+		print '<br ><br >';
+		print '<input type="submit" class="butAction" value="'.$langs->trans("REFRESH").'">';
+		print '<input type="submit" class="butAction" value="'.$langs->trans("CSV").'" name="CSVButton">';
 		// Affichage de la barre pour sélectionner la page à afficher
 		print_barre_liste($langs->trans("BIOCIDE_PRODUCTS"), $page, $_SERVER["PHP_SELF"], '', '', '', '', $num, $totalnumofrows, 'product', 0, '', '', $limit, 0, 0, 1);
 		

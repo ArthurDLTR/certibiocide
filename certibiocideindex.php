@@ -80,6 +80,14 @@ if (isset($user->socid) && $user->socid > 0) {
 	$socid = $user->socid;
 }
 
+if(GETPOST('starting_date', 'alpha')){
+	$starting_date = GETPOST('starting_date', 'alpha');
+}
+
+if(GETPOST('ending_date', 'alpha')){
+	$ending_date = GETPOST('ending_date', 'alpha');
+}
+
 // SQL Request with table joins and fields selection
 $sql = "SELECT s.rowid as soc_id, s.nom as soc_nom, s.logo as soc_logo, s.status as soc_status, s_f.certibiocide_attr_thirdparty, p.rowid as prod_id, p.label as prod_label, p.ref as prod_ref, p.description as prod_descr, p.label as prod_label, p.tobuy as prod_tobuy, p.tosell as prod_tosell, p.entity as prod_entity, p_f.certibiocide_attr_product, SUM(c_d.qty) AS qty FROM ".MAIN_DB_PREFIX."commande as c 
 LEFT JOIN ".MAIN_DB_PREFIX."commandedet c_d ON c.rowid = c_d.fk_commande
@@ -141,13 +149,7 @@ if ($offset > $totalnumofrows) {	// if total resultset is smaller than the pagin
 /*
  * Actions
  */
-if(GETPOST('starting_date', 'alpha')){
-	$starting_date = GETPOST('starting_date', 'alpha');
-}
 
-if(GETPOST('ending_date', 'alpha')){
-	$ending_date = GETPOST('ending_date', 'alpha');
-}
 
 // CSV button check to make the CSV file when the button is clicked
 if (GETPOSTISSET('CSVButton', 'bool')){
